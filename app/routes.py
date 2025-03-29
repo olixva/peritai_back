@@ -29,7 +29,7 @@ async def create_evaluation_endpoint(evaluation_data: EvaluationCreateDTO, backg
     return EvaluationResponseDTO(
         message="Las imágenes se están procesando",
         evaluation_id=evaluation_id,
-        status="En proceso"
+        status="Procesando imagenes"
     )
 
 
