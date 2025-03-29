@@ -1,7 +1,7 @@
 from fastapi import APIRouter, BackgroundTasks, HTTPException
-from app.dto.dtos import EvaluationCreateDTO, EvaluationResponseDTO, ResultadoEvaluacionDTO
+from app.dto.dtos import EvaluationCreateDTO, EvaluationResponseDTO, EvaluacionDTO
 from app.services.ai_service import process_images
-from app.db import create_evaluation, get_evaluation
+from app.db.db import create_evaluation, get_evaluation
 
 router = APIRouter(
     prefix="/evaluations",
@@ -15,7 +15,8 @@ async def create_evaluation_endpoint(evaluation_data: EvaluationCreateDTO, backg
     vehicle_data = {
         "matricula": evaluation_data.matricula,
         "marca": evaluation_data.marca,
-        "modelo": evaluation_data.modelo
+        "modelo": evaluation_data.modelo,
+        "anio": evaluation_data.anio
     }
 
     # Registrar la evaluación en la base de datos
@@ -35,7 +36,7 @@ async def create_evaluation_endpoint(evaluation_data: EvaluationCreateDTO, backg
 @router.get(
     "/{evaluation_id}",
     summary="Obtiene información de una evaluación específica",
-    response_model=list[ResultadoEvaluacionDTO]
+    response_model=EvaluacionDTO
 )
 async def get_evaluation_details(evaluation_id: int):
     evaluation = get_evaluation(evaluation_id)
