@@ -20,6 +20,7 @@ class EvaluationCreateDTO(BaseModel):
     matricula: str
     marca: str
     modelo: str
+    anio: str
     imagenes: List[ImagenDTO]
 
 
@@ -30,15 +31,13 @@ class EvaluationResponseDTO(BaseModel):
 
 
 class DesperfectoDTO(BaseModel):
-    url_imagen: str
+    localizacion: str
     tipo: str
-    severidad: str
     descripcion: str
-    imagenes: List[ImagenDTO]
+    gravedad: str
 
 
 class ResultadoEvaluacionDTO(BaseModel):
-    evaluation_id: int
     url_image: str
     status: str
     desperfectos: List[DesperfectoDTO]
