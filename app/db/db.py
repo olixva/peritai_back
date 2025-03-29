@@ -6,7 +6,7 @@ from app.dto.dtos import EvaluacionDTO, DatosVehiculoDTO, ResultadoDesperfectosI
 evaluations_db: List[EvaluacionDTO] = []
 
 
-def create_evaluation(vehicle_data: dict, images_urls: List[ImagenDTO], status: str = "In process") -> int:
+def create_evaluation(vehicle_data: dict, images_urls: List[ImagenDTO], status: str = "In process") -> str:
     evaluation_id: str = str(len(evaluations_db) + 1)
 
     """
