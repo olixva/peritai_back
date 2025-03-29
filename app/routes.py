@@ -38,7 +38,7 @@ async def create_evaluation_endpoint(evaluation_data: EvaluationCreateDTO, backg
     summary="Obtiene información de una evaluación específica",
     response_model=EvaluacionDTO
 )
-async def get_evaluation_details(evaluation_id: int):
+async def get_evaluation_details(evaluation_id: str):
     evaluation = get_evaluation(evaluation_id)
     if evaluation is None:
         raise HTTPException(status_code=404, detail="Evaluación no encontrada")

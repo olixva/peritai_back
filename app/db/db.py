@@ -1,13 +1,13 @@
 # Simulación de "base de datos" en memoria para evaluaciones
 from typing import List
 
-from app.dto.dtos import EvaluacionDTO, DatosVehiculoDTO, ResultadoDesperfectosImagenDTO
+from app.dto.dtos import EvaluacionDTO, DatosVehiculoDTO, ResultadoDesperfectosImagenDTO, ImagenDTO
 
 evaluations_db: List[EvaluacionDTO] = []
 
 
-def create_evaluation(vehicle_data: dict, images_urls: list, status: str = "In process") -> int:
-    evaluation_id: int = len(evaluations_db) + 1
+def create_evaluation(vehicle_data: dict, images_urls: List[ImagenDTO], status: str = "In process") -> int:
+    evaluation_id: str = str(len(evaluations_db) + 1)
 
     """
     Creamos una lista de objetos ResultadoDesperfectosImagenDTO con los datos de las 
@@ -17,7 +17,7 @@ def create_evaluation(vehicle_data: dict, images_urls: list, status: str = "In p
         ResultadoDesperfectosImagenDTO
         (
             url_image=image.url,
-            tipo_imagen=image.tipo_imagen,
+            tipo_imagen=image.tipo,
             desperfectos=[]
         )
         for image in images_urls
@@ -35,7 +35,7 @@ def create_evaluation(vehicle_data: dict, images_urls: list, status: str = "In p
     return evaluation_id
 
 
-def get_evaluation(evaluation_id: int) -> EvaluacionDTO | None:
+def get_evaluation(evaluation_id: str) -> EvaluacionDTO | None:
     for evaluation in evaluations_db:
         if evaluation.id == evaluation_id:
             return evaluation
