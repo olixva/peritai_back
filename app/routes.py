@@ -1,7 +1,8 @@
+from typing import List
 from fastapi import APIRouter, BackgroundTasks, HTTPException
 from app.dto.dtos import EvaluationCreateDTO, EvaluationResponseDTO, EvaluacionDTO
 from app.services.ai_service import process_images
-from app.db.db import create_evaluation, get_evaluation
+from app.db import db
 
 router = APIRouter(
     prefix="/evaluations",
@@ -20,11 +21,10 @@ async def create_evaluation_endpoint(evaluation_data: EvaluationCreateDTO, backg
     }
 
     # Registrar la evaluación en la base de datos
-    evaluation_id = create_evaluation(vehicle_data, evaluation_data.imagenes)
+    evaluation_id = db.create_evaluation(vehicle_data, evaluation_data.imagenes)
 
     # Agregar tarea en background para procesar las imágenes con la IA
-    for image in evaluation_data.imagenes:
-        background_tasks.add_task(process_images, image)
+    background_tasks.add_task(process_images, evaluation_data.imagenes, evaluation_id)
 
     return EvaluationResponseDTO(
         message="Las imágenes se están procesando",
@@ -39,7 +39,20 @@ async def create_evaluation_endpoint(evaluation_data: EvaluationCreateDTO, backg
     response_model=EvaluacionDTO
 )
 async def get_evaluation_details(evaluation_id: str):
-    evaluation = get_evaluation(evaluation_id)
+    evaluation = db.get_evaluation(evaluation_id)
     if evaluation is None:
         raise HTTPException(status_code=404, detail="Evaluación no encontrada")
     return evaluation
+
+
+@router.get(
+    "",
+    summary="Obtiene todas las evaluaciones",
+    response_model=List[EvaluacionDTO]
+)
+async def get_all_evaluations():
+    lista_evaluaciones = db.get_all_evaluations()
+
+    if not lista_evaluaciones:
+        raise HTTPException(status_code=404, detail="No hay evaluaciones registradas")
+    return lista_evaluaciones

@@ -40,3 +40,7 @@ def get_evaluation(evaluation_id: str) -> EvaluacionDTO | None:
         if evaluation.id == evaluation_id:
             return evaluation
     return None
+
+
+def get_all_evaluations() -> List[EvaluacionDTO]:
+    return evaluations_db
