@@ -21,7 +21,7 @@ async def create_evaluation_endpoint(evaluation_data: EvaluationCreateDTO, backg
     }
 
     # Registrar la evaluación en la base de datos
-    evaluation_id = db.create_evaluation(vehicle_data, evaluation_data.imagenes)
+    evaluation_id = db.create_evaluation(vehicle_data)
 
     # Agregar tarea en background para procesar las imágenes con la IA
     background_tasks.add_task(process_images, evaluation_data.imagenes, evaluation_id)
