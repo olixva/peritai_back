@@ -34,57 +34,45 @@ def process_image(imagen: ImagenDTO) -> ResultadoDesperfectosImagenDTO:
     image_bytes = requests.get(imagen.url).content
     image_base64 = base64.b64encode(image_bytes).decode("utf-8")
 
-    # Cargar localizaciones
-    diccionario = {
-        "frontal": [
-            "parabrisas", "luna delantera", "matrícula delantera",
-            "faro derecho", "faro izquierdo", "guardabarros derecho", "guardabarros izquierdo",
-            "parachoques delantero", "capó"
-        ],
-        "parte trasera": [
-            "luna trasera", "matrícula trasera", "maletero",
-            "faro trasero derecho", "faro trasero izquierdo",
-            "parachoques trasero"
-        ],
-        "lateral izquierdo": [
-            "puerta delantera izquierda", "puerta trasera izquierda",
-            "retrovisor izquierdo", "guardabarros trasero izquierdo", "guardabarros delantero izquierdo",
-            "ventana delantera izquierda", "ventana trasera izquierda"
-        ],
-        "lateral derecho": [
-            "puerta delantera derecha", "puerta trasera derecha",
-            "retrovisor derecho", "guardabarros trasero derecho", "guardabarros delantero derecho",
-            "ventana delantera derecha", "ventana trasera derecha"
-        ]
-    }
-    localizaciones = diccionario[imagen.tipo.value]
-
-    # Cargar tipos de daño
-    tipos_de_dano = ["abolladura", "rayón", "rotura", "desprendimiento de pintura", "fisura", "desgaste", "oxido"]
-
     # definir el prompt
-    prompt = f"""
-        Eres un asistente útil que analiza imágenes de vehículos e identifica daños basándose en zonas y tipos de daño predefinidos.
-        Analiza el vehículo en la imagen proporcionada teniendo en cuenta que estás viendo la zona {imagen.tipo.value} de un vehículo.
-        Devuelve una lista de JSONs con la siguiente estructura:
-        {{
-        response:
-        [{{
-            "localizacion": "Debes indicar dónde está el desperfecto. Las únicas posibles opciones son: {localizaciones}.",
-            "tipo": "Debes indicar de qué tipo es el desperfecto. La únicas posibles opciones son: {tipos_de_dano}.",
-            "gravedad": "Debes indicar la gravedad del desperfecto: sólo puede ser leve o grave. Grave indica caro de reparar.",
-            "descripcion": "Explicación de aproximadamente 12 palabras detallando la naturaleza, el tipo y la gravedad del desperfecto.",
-        }}
-        {{
-        otro desperfecto...,
-        }}
-        ]
-        }}
-        El tamaño de esta lista variará dependiendo del número de desperfectos detectados.
-        No incluyas información adicional ni hagas inferencias fuera de las categorías especificadas.
-        Responde exclusivamente en español.
-        Asegúrate de que no confundes desperfectos con reflejos.
-    """
+    prompt = f"""Eres un asistente altamente especializado en el análisis de imágenes de vehículos. Tu tarea es identificar y describir cualquier daño visible en la imagen, basándote en las zonas y tipos de daño predefinidos.
+
+Instrucciones:
+1. Analiza la imagen del vehículo proporcionada. La imagen corresponde a la zona **{imagen.tipo.value}**.
+2. Detecta todos los desperfectos presentes, pero solo regístralos si estás 100% seguro de que se trata de un daño. En caso de duda, asume que la imagen no presenta daños.
+3. Si no se detecta ningún daño (o si no estás 100% seguro de su existencia), responde con la lista vacía (es decir, `"response": []`).
+4. Para cada desperfecto identificado con absoluta certeza, devuelve un objeto JSON con la siguiente estructura exacta:
+
+   {{
+       "localizacion": "Indica el área específica donde se encuentra el daño.",
+       "tipo": "Especifica el tipo de daño identificado.",
+       "gravedad": "Indica la gravedad del daño; debe ser 'leve', 'moderado' o 'grave' ('grave' implica alto costo de reparación).",
+       "descripcion": "Ofrece una breve descripción (aproximadamente 12 palabras) que detalle la naturaleza, tipo y gravedad del daño."
+   }}
+
+5. Devuelve un único JSON con un array bajo la clave `response`, por ejemplo:
+
+   {{
+       "response": [
+           {{
+               "localizacion": "...",
+               "tipo": "...",
+               "gravedad": "...",
+               "descripcion": "..."
+           }},
+           {{
+               "localizacion": "...",
+               "tipo": "...",
+               "gravedad": "...",
+               "descripcion": "..."
+           }}
+       ]
+   }}
+
+6. No incluyas información adicional ni hagas inferencias fuera de las categorías especificadas.
+7. Asegúrate de no confundir desperfectos con reflejos.
+8. Responde exclusivamente en español.
+"""
 
     # llamar al modelo
     response = client.generate(
